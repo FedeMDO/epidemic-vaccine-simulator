@@ -327,7 +327,7 @@ to maybe-recover-or-die
             ]
         ]
     ]
-    [ ;; Si está hospitalizado, recupérese en una quinta parte del tiempo de recuperación
+    [ ;; Si está hospitalizado, recupérese en el tiempo recovery-time-hospitalized o muere
       if infection-length > recovery-time-hospitalized
         [
           set infected? false
