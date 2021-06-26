@@ -2,14 +2,14 @@ globals
 [
   nb-infected-previous ;; Número de personas infectadas en el tick anterior
   border               ;; Los parches que representan el borde amarillo.
-  angle                ;; Heading for individuals FIXME *** entender uso, sospecho que es para que la persona "encare" una direccion u otra dependiendo del continente *** 
+  angle                ;; Heading for individuals FIXME *** entender uso, sospecho que es para que la persona "encare" una direccion u otra dependiendo del continente ***
   beta-n               ;; El número medio de nuevas infecciones secundarias por infectado en este tick
   gamma                ;; El número medio de nuevas recuperaciones por infectado en este tick
   r0                   ;; El número de infecciones secundarias que surgen debido a un único infeccioso introducido en una población totalmente susceptible.
 ]
 
 ;; personas
-turtles-own 
+turtles-own
 [
   susceptible?         ;; Realiza un seguimiento de si la persona era inicialmente susceptible
   infected?            ;; Si es true, la persona está infectada.
@@ -18,16 +18,18 @@ turtles-own
   isolated?            ;; Si es true, la persona está aislada y no puede infectar a nadie.
   hospitalized?        ;; Si es true, la persona está hospitalizada y se recuperará en la mitad del tiempo promedio de recuperación.
   ambulance?           ;; Si es true, la persona es una ambulancia y transportará a las personas infectadas al hospital.
+  dead?                ;; Si es true, la persona ha muerto.
 
   infection-length     ;; Cuánto tiempo ha estado infectada la persona.
   recovery-time        ;; Tiempo (en horas) que tarda la persona en recuperarse de la infección.
+  recovery-time-hospitalized ;; Tiempo (en horas) que tarda la persona en recuperarse de la infección si está hospitalizada.
   isolation-tendency   ;; Posibilidad de que la persona se ponga en cuarentena durante cualquier hora en la que esté infectada.
   hospital-going-tendency ;; Posibilidad de que una persona infectada vaya al hospital cuando esté infectada
 
   continent            ;; En qué continente vive una persona, las personas en el continente 1 son cuadrados, las personas en el continente 2 son círculos.
 
-  nb-infected          ;; Número de infecciones secundarias causadas por una persona infectada en este tick
-  nb-recovered         ;; Número de personas recuperadas en este tick
+  nb-infected            ;; Número de infecciones secundarias causadas por una persona infectada en este tick
+  nb-recovered-and-death ;; Número de personas recuperadas y fallecidas en este tick
 ]
 
 ;;;
@@ -59,6 +61,7 @@ to setup-people
       [ set continent 1 ]
       [ set continent 2 ]
 
+      set dead? false
       set cured? false
       set isolated? false
       set hospitalized? false
@@ -74,8 +77,8 @@ to setup-people
 
       set size 0.5
 
-      ;; Cada individuo tiene un 5% de probabilidad de comenzar infectado.
-      if (random-float 100 < 5)
+      ;; Cada individuo tiene un % de probabilidad (initial-people-infected-chance) de comenzar infectado.
+      if (random-float 100 < initial-people-infected-chance)
       [ set infected? true
         set susceptible? false
         set infection-length random recovery-time
@@ -87,9 +90,9 @@ to setup-people
         [ set inoculated? false ]
 
       assign-color
-      ]
+    ]
 
-    if links? [ make-network ]
+  if links? [ make-network ]
 end
 
 to setup-ambulance
@@ -111,7 +114,7 @@ to setup-ambulance
     set infected? false
     set inoculated? false
     set susceptible? false
-
+    set dead? false
     set ambulance? true
 
     set shape "person"
@@ -124,6 +127,7 @@ to assign-tendency ;; Turtle procedure
   set isolation-tendency random-normal average-isolation-tendency average-isolation-tendency / 4
   set hospital-going-tendency random-normal average-hospital-going-tendency average-hospital-going-tendency / 4
   set recovery-time random-normal average-recovery-time average-recovery-time / 4
+  set recovery-time-hospitalized random-normal average-recovery-time-hospitalized average-recovery-time-hospitalized / 4
 
   ;; Asegúrese de que el tiempo de recuperación se encuentre entre 0 y 2 veces el tiempo de recuperación promedio
   if recovery-time > average-recovery-time * 2 [ set recovery-time average-recovery-time * 2 ]
@@ -135,6 +139,10 @@ to assign-tendency ;; Turtle procedure
 
   if hospital-going-tendency > average-hospital-going-tendency * 2 [ set hospital-going-tendency average-hospital-going-tendency * 2 ]
   if hospital-going-tendency < 0 [ set hospital-going-tendency 0 ]
+
+  if recovery-time-hospitalized > average-recovery-time-hospitalized * 2 [ set recovery-time-hospitalized average-recovery-time-hospitalized * 2 ]
+  if recovery-time-hospitalized < 0 [ set recovery-time-hospitalized 0 ]
+
 end
 
 
@@ -146,13 +154,16 @@ end
 ;; amarillo es una ambulancia (ambulance)
 to assign-color ;; turtle procedure
 
-  ifelse cured?
+  ifelse dead?
+  [set color gray]
+  [
+    ifelse cured?
     [ set color green ]
     [ ifelse inoculated?
       [ set color blue ]
       [ ifelse infected?
         [set color red ]
-        [set color white]]]
+        [set color white]]]]
   if ambulance?
     [ set color yellow ]
 end
@@ -178,20 +189,20 @@ to go
     [ clear-count ]
 
   ask turtles
-    [ if not isolated? and not hospitalized? and not ambulance?
-        [ move ] ]
+    [ if not isolated? and not hospitalized? and not ambulance? and not dead?
+      [ move ] ]
 
   ask turtles
-    [ if infected? and not isolated? and not hospitalized?
-         [ infect ] ]
+    [ if infected? and not isolated? and not hospitalized? and not dead?
+      [ infect ] ]
 
   ask turtles
-    [ if not isolated? and not hospitalized? and infected? and (random 100 < isolation-tendency)
-        [ isolate ] ]
+    [ if not isolated? and not hospitalized? and infected? and not dead? and (random 100 < isolation-tendency)
+      [ isolate ] ]
 
   ask turtles
-    [ if not isolated? and not hospitalized? and infected? and (random 100 < hospital-going-tendency)
-        [ hospitalize ] ]
+    [ if not isolated? and not hospitalized? and infected? and not dead? and (random 100 < hospital-going-tendency)
+      [ hospitalize ] ]
 
   ask turtles
   [
@@ -207,13 +218,13 @@ to go
   ]
 
   ask turtles
-    [ if infected?
-       [ maybe-recover ]
+    [ if infected? and not dead?
+      [ maybe-recover-or-die ]
     ]
 
   ask turtles
     [ if (isolated? or hospitalized?) and cured?
-        [ unisolate ] ]
+      [ unisolate ] ]
 
   ask turtles
     [ assign-color
@@ -295,34 +306,37 @@ end
 
 to clear-count
   set nb-infected 0
-  set nb-recovered 0
+  set nb-recovered-and-death 0
 end
 
-to maybe-recover
+to maybe-recover-or-die
   set infection-length infection-length + 1
 
-      ;; Si las personas han estado infectadas durante más tiempo que el de recuperación
-      ;; entonces existe la posibilidad de recuperación
-      ifelse not hospitalized?
-      [
-        if infection-length > recovery-time
+  ;; Si las personas han estado infectadas durante más tiempo que el de recuperación
+  ;; entonces existe la posibilidad de recuperación o de muerte
+  ifelse not hospitalized?
+    [
+      if infection-length > recovery-time
         [
           if random-float 100 < recovery-chance
-          [
-            set infected? false
-            set cured? true
-            set nb-recovered (nb-recovered + 1)
-          ]
+            [
+              set infected? false
+              set dead? random-float 100 < mortality-chance
+              set cured? not dead?
+              set nb-recovered-and-death (nb-recovered-and-death + 1)
+            ]
         ]
-      ]
-      [ ;; Si está hospitalizado, recupérese en una quinta parte del tiempo de recuperación
-        if infection-length > (recovery-time / 5)
+    ]
+    [ ;; Si está hospitalizado, recupérese en una quinta parte del tiempo de recuperación
+      if infection-length > recovery-time-hospitalized
         [
           set infected? false
-          set cured? true
-          set nb-recovered (nb-recovered + 1 )
+          set dead? random-float 100 < mortality-chance
+          set cured? not dead?
+          set nb-recovered-and-death (nb-recovered-and-death + 1 )
         ]
-      ]
+    ]
+
 end
 
 ;; Para mostrar mejor que se ha producido el aislamiento, el patch debajo de la persona se vuelve gris
@@ -362,30 +376,48 @@ end
 ;; Si el vecino está vinculado, la posibilidad de transmisión de enfermedades se duplica.
 to infect  ;; turtle procedure
 
-    let caller self
+  let caller self
 
-    let nearby-uninfected (turtles-on neighbors)
-    with [ not infected? and not cured? and not inoculated? ]
-    if nearby-uninfected != nobody
+  let nearby-uninfected (turtles-on neighbors)
+  ;; with [ not infected? and not cured? and not inoculated? ]
+  with [ not infected? and not cured? and not dead? ]
+  if nearby-uninfected != nobody
     [
-       ask nearby-uninfected
-       [
-           ifelse link-neighbor? caller
-           [
-             if random 100 < infection-chance * 2 ;; el doble de probabilidades de infectar a un contacto estrecho (persona vinculada)
-             [
-               set infected? true
-               set nb-infected (nb-infected + 1)
-             ]
-           ]
-           [
-             if random 100 < infection-chance
-             [
-               set infected? true
-               set nb-infected (nb-infected + 1)
-             ]
-           ]
-       ]
+      ask nearby-uninfected
+        [
+          ifelse link-neighbor? caller
+            [
+              if random 100 < infection-chance * 2 ;; el doble de probabilidades de infectar a un contacto estrecho (persona vinculada)
+              [
+                set infected? true
+                set nb-infected (nb-infected + 1)
+              ]
+            ]
+          ;; else
+            [
+              ifelse inoculated?
+              [
+                ;; infection-chance 40 vaccine-efficacy 80
+                ;; 40 * (1 - (80/100))
+                ;; = 8 (% of final infection-chance)
+                ;; final-infection-chance = infection-chance * (1 - (vaccine-efficacy / 100))
+
+                if random 100 < infection-chance * (1 - (vaccine-efficacy / 100))
+                [
+                  set infected? true
+                  set nb-infected (nb-infected + 1)
+                ]
+              ]
+              [
+                if random 100 < infection-chance
+                [
+                  set infected? true
+                  set nb-infected (nb-infected + 1)
+                ]
+              ]
+
+            ]
+        ]
 
     ]
 
@@ -395,7 +427,7 @@ end
 to calculate-r0
 
   let new-infected sum [ nb-infected ] of turtles
-  let new-recovered sum [ nb-recovered ] of turtles
+  let new-recovered sum [ nb-recovered-and-death ] of turtles
   set nb-infected-previous (count turtles with [ infected? ] + new-recovered - new-infected)  ;; Numero de personas infectadas en el tick previo
   let susceptible-t (initial-people - (count turtles with [ infected? ]) - (count turtles with [ cured? ]))  ;; Numero actual de susceptibles
   let s0 count turtles with [ susceptible? ] ;; Numero inicial de susceptibles
@@ -424,16 +456,36 @@ to calculate-r0
     set r0 r0 * s0 ]
 end
 
+to-report calculate-infected
+  report count turtles with [ infected? ]
+end
+
+to-report calculate-recovered
+  report count turtles with [ cured? ]
+end
+
+to-report calculate-susceptible
+  report count turtles with [ not infected? and not cured? and not dead? ]
+end
+
+to-report calculate-inoculated
+  report count turtles with [ inoculated? ]
+end
+
+to-report calculate-deaths
+  report count turtles with [ dead? ]
+end
+
 ; Copyright 2011 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
 646
 27
-1131
-533
-12
-12
+1321
+723
+17
+17
 19.0
 1
 10
@@ -444,10 +496,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--12
-12
--12
-12
+-17
+17
+-17
+17
 1
 1
 1
@@ -455,10 +507,10 @@ hours
 30.0
 
 BUTTON
-339
-219
-422
-252
+335
+220
+418
+253
 setup
 setup
 NIL
@@ -497,7 +549,7 @@ initial-people
 initial-people
 50
 400
-250
+400
 10
 1
 NIL
@@ -512,7 +564,7 @@ average-isolation-tendency
 average-isolation-tendency
 0
 50
-5
+20
 5
 1
 NIL
@@ -546,7 +598,7 @@ inoculation-chance
 inoculation-chance
 0
 50
-10
+5
 5
 1
 NIL
@@ -561,7 +613,7 @@ initial-ambulance
 initial-ambulance
 0
 4
-2
+0
 1
 1
 NIL
@@ -610,7 +662,7 @@ infection-chance
 infection-chance
 10
 100
-55
+30
 5
 1
 NIL
@@ -625,17 +677,17 @@ recovery-chance
 recovery-chance
 10
 100
-45
+95
 5
 1
 NIL
 HORIZONTAL
 
 MONITOR
-356
-451
-437
-496
+460
+560
+541
+605
 R0
 r0\n
 2
@@ -662,7 +714,7 @@ intra-mobility
 intra-mobility
 0
 1
-0.4
+0.2
 0.1
 1
 NIL
@@ -703,7 +755,7 @@ average-recovery-time
 average-recovery-time
 50
 300
-110
+300
 10
 1
 NIL
@@ -727,6 +779,121 @@ true
 PENS
 "% infected" 1.0 0 -2674135 true "" "plot (((count turtles with [ cured? ] + count turtles with [ infected? ]) / initial-people) * 100)"
 "% recovered" 1.0 0 -10899396 true "" "plot ((count turtles with [ cured? ] / initial-people) * 100)"
+
+SLIDER
+15
+690
+187
+723
+vaccine-efficacy
+vaccine-efficacy
+1
+100
+82
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+15
+640
+262
+673
+average-recovery-time-hospitalized
+average-recovery-time-hospitalized
+1
+1000
+401
+1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+355
+455
+427
+500
+Infectados
+calculate-infected
+17
+1
+11
+
+MONITOR
+355
+505
+437
+550
+Recuperados
+calculate-recovered
+17
+1
+11
+
+MONITOR
+460
+455
+547
+500
+No infectados
+calculate-susceptible
+17
+1
+11
+
+MONITOR
+359
+559
+431
+604
+Vacunados
+calculate-inoculated
+17
+1
+11
+
+SLIDER
+340
+635
+552
+668
+initial-people-infected-chance
+initial-people-infected-chance
+1
+100
+10
+1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+340
+690
+512
+723
+mortality-chance
+mortality-chance
+0
+100
+20
+1
+1
+NIL
+HORIZONTAL
+
+MONITOR
+460
+505
+517
+550
+Muertes
+calculate-deaths
+17
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
