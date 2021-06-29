@@ -327,7 +327,7 @@ to maybe-recover-or-die
             ]
         ]
     ]
-    [ ;; Si está hospitalizado, recupérese en el tiempo recovery-time-hospitalized o muere
+    [ ;; Si está hospitalizado, recupérese en una quinta parte del tiempo de recuperación
       if infection-length > recovery-time-hospitalized
         [
           set infected? false
@@ -549,7 +549,7 @@ initial-people
 initial-people
 50
 400
-400
+250
 10
 1
 NIL
@@ -564,7 +564,7 @@ average-isolation-tendency
 average-isolation-tendency
 0
 50
-20
+30
 5
 1
 NIL
@@ -587,7 +587,8 @@ true
 "" ""
 PENS
 "Infected" 1.0 0 -2674135 true "" "plot count turtles with [ infected? ]"
-"Not Infected" 1.0 0 -10899396 true "" "plot count turtles with [ not infected? ]"
+"Not Infected" 1.0 0 -10899396 true "" "plot count turtles with [ not infected? and not dead? ]"
+"Deceases" 1.0 0 -7500403 true "" "plot count turtles with [ dead? ]"
 
 SLIDER
 315
@@ -598,7 +599,7 @@ inoculation-chance
 inoculation-chance
 0
 50
-5
+0
 5
 1
 NIL
@@ -662,7 +663,7 @@ infection-chance
 infection-chance
 10
 100
-30
+40
 5
 1
 NIL
@@ -677,7 +678,7 @@ recovery-chance
 recovery-chance
 10
 100
-95
+80
 5
 1
 NIL
@@ -701,7 +702,7 @@ SWITCH
 232
 links?
 links?
-1
+0
 1
 -1000
 
@@ -714,7 +715,7 @@ intra-mobility
 intra-mobility
 0
 1
-0.2
+0.5
 0.1
 1
 NIL
@@ -755,7 +756,7 @@ average-recovery-time
 average-recovery-time
 50
 300
-300
+200
 10
 1
 NIL
@@ -777,8 +778,9 @@ true
 true
 "" ""
 PENS
-"% infected" 1.0 0 -2674135 true "" "plot (((count turtles with [ cured? ] + count turtles with [ infected? ]) / initial-people) * 100)"
+"% infected" 1.0 0 -2674135 true "" "plot (((count turtles with [ cured? or dead? ] + count turtles with [ infected? ]) / initial-people) * 100)"
 "% recovered" 1.0 0 -10899396 true "" "plot ((count turtles with [ cured? ] / initial-people) * 100)"
+"% deceased" 1.0 0 -7500403 true "" "plot ((count turtles with [ dead? ] / initial-people) * 100)"
 
 SLIDER
 15
@@ -804,7 +806,7 @@ average-recovery-time-hospitalized
 average-recovery-time-hospitalized
 1
 1000
-401
+302
 1
 1
 NIL
@@ -862,8 +864,8 @@ SLIDER
 initial-people-infected-chance
 initial-people-infected-chance
 1
-100
-10
+50
+5
 1
 1
 NIL
@@ -878,7 +880,7 @@ mortality-chance
 mortality-chance
 0
 100
-20
+5
 1
 1
 NIL
