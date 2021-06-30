@@ -549,7 +549,7 @@ initial-people
 initial-people
 50
 400
-250
+400
 10
 1
 NIL
@@ -599,7 +599,7 @@ inoculation-chance
 inoculation-chance
 0
 50
-0
+10
 5
 1
 NIL
@@ -678,7 +678,7 @@ recovery-chance
 recovery-chance
 10
 100
-80
+50
 5
 1
 NIL
@@ -756,7 +756,7 @@ average-recovery-time
 average-recovery-time
 50
 300
-200
+300
 10
 1
 NIL
@@ -806,7 +806,7 @@ average-recovery-time-hospitalized
 average-recovery-time-hospitalized
 1
 1000
-302
+501
 1
 1
 NIL
@@ -865,7 +865,7 @@ initial-people-infected-chance
 initial-people-infected-chance
 1
 50
-5
+10
 1
 1
 NIL
