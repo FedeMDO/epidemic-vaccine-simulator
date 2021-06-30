@@ -159,7 +159,7 @@ to assign-color ;; turtle procedure
   [
     ifelse cured?
     [ set color green ]
-    [ ifelse inoculated?
+    [ ifelse inoculated? and not infected?
       [ set color blue ]
       [ ifelse infected?
         [set color red ]
@@ -379,7 +379,6 @@ to infect  ;; turtle procedure
   let caller self
 
   let nearby-uninfected (turtles-on neighbors)
-  ;; with [ not infected? and not cured? and not inoculated? ]
   with [ not infected? and not cured? and not dead? ]
   if nearby-uninfected != nobody
     [
@@ -387,13 +386,18 @@ to infect  ;; turtle procedure
         [
           ifelse link-neighbor? caller
             [
-              if random 100 < infection-chance * 2 ;; el doble de probabilidades de infectar a un contacto estrecho (persona vinculada)
-              [
-                set infected? true
-                set nb-infected (nb-infected + 1)
-              ]
+              ifelse inoculated?
+              [              if random 100 < infection-chance * 2 * (1 - (vaccine-efficacy / 100));; el doble de probabilidades de infectar a un contacto estrecho (persona vinculada)
+                [
+                  set infected? true
+                  set nb-infected (nb-infected + 1)
+                ]]
+              [              if random 100 < infection-chance * 2 ;; el doble de probabilidades de infectar a un contacto estrecho (persona vinculada)
+                [
+                  set infected? true
+                  set nb-infected (nb-infected + 1)
+                ]]
             ]
-          ;; else
             [
               ifelse inoculated?
               [
@@ -482,10 +486,10 @@ end
 GRAPHICS-WINDOW
 625
 10
-1222
-608
--1
--1
+1718
+896
+28
+22
 19.0
 1
 10
@@ -496,10 +500,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--15
-15
--15
-15
+-28
+28
+-22
+22
 1
 1
 1
@@ -549,7 +553,7 @@ initial-people
 initial-people
 50
 400
-130.0
+300
 10
 1
 NIL
@@ -564,7 +568,7 @@ average-isolation-tendency
 average-isolation-tendency
 0
 50
-30.0
+30
 5
 1
 NIL
@@ -599,7 +603,7 @@ inoculation-chance
 inoculation-chance
 0
 50
-15.0
+30
 5
 1
 NIL
@@ -614,7 +618,7 @@ initial-ambulance
 initial-ambulance
 0
 4
-4.0
+0
 1
 1
 NIL
@@ -629,7 +633,7 @@ average-hospital-going-tendency
 average-hospital-going-tendency
 0
 50
-10.0
+10
 5
 1
 NIL
@@ -663,7 +667,7 @@ infection-chance
 infection-chance
 10
 100
-40.0
+60
 5
 1
 NIL
@@ -678,7 +682,7 @@ recovery-chance
 recovery-chance
 10
 100
-50.0
+60
 5
 1
 NIL
@@ -715,7 +719,7 @@ intra-mobility
 intra-mobility
 0
 1
-0.0
+0.6
 0.1
 1
 NIL
@@ -741,7 +745,7 @@ travel-tendency
 travel-tendency
 0
 1
-1.0
+1
 .1
 1
 NIL
@@ -756,7 +760,7 @@ average-recovery-time
 average-recovery-time
 50
 300
-300.0
+300
 10
 1
 NIL
@@ -791,7 +795,7 @@ vaccine-efficacy
 vaccine-efficacy
 1
 100
-82.0
+80
 1
 1
 NIL
@@ -806,7 +810,7 @@ average-recovery-time-hospitalized
 average-recovery-time-hospitalized
 1
 1000
-513.0
+1000
 1
 1
 NIL
@@ -865,7 +869,7 @@ initial-people-infected-chance
 initial-people-infected-chance
 1
 50
-10.0
+10
 1
 1
 NIL
@@ -880,7 +884,7 @@ mortality-chance
 mortality-chance
 0
 100
-1.0
+24
 1
 1
 NIL
@@ -1312,8 +1316,9 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
+
 @#$#@#$#@
-NetLogo 6.2.0
+NetLogo 5.3.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1329,6 +1334,7 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
+
 @#$#@#$#@
 1
 @#$#@#$#@
