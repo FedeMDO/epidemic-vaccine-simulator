@@ -480,12 +480,12 @@ end
 ; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-646
-27
-1321
-723
-17
-17
+625
+10
+1222
+608
+-1
+-1
 19.0
 1
 10
@@ -496,10 +496,10 @@ GRAPHICS-WINDOW
 0
 0
 1
--17
-17
--17
-17
+-15
+15
+-15
+15
 1
 1
 1
@@ -507,10 +507,10 @@ hours
 30.0
 
 BUTTON
-335
-220
-418
-253
+350
+250
+433
+283
 setup
 setup
 NIL
@@ -524,10 +524,10 @@ NIL
 1
 
 BUTTON
-443
-219
-526
-252
+440
+250
+523
+283
 go
 go
 T
@@ -541,40 +541,40 @@ NIL
 0
 
 SLIDER
-18
-22
-287
-55
+15
+10
+284
+43
 initial-people
 initial-people
 50
 400
-400
+130.0
 10
 1
 NIL
 HORIZONTAL
 
 SLIDER
-315
-22
-584
-55
+312
+10
+581
+43
 average-isolation-tendency
 average-isolation-tendency
 0
 50
-30
+30.0
 5
 1
 NIL
 HORIZONTAL
 
 PLOT
-356
-299
-619
-442
+350
+310
+613
+453
 Populations
 hours
 # people
@@ -591,15 +591,15 @@ PENS
 "Deceases" 1.0 0 -7500403 true "" "plot count turtles with [ dead? ]"
 
 SLIDER
-315
-95
-584
-128
+312
+83
+581
+116
 inoculation-chance
 inoculation-chance
 0
 50
-10
+15.0
 5
 1
 NIL
@@ -607,39 +607,39 @@ HORIZONTAL
 
 SLIDER
 315
-134
+190
 487
-167
+223
 initial-ambulance
 initial-ambulance
 0
 4
-0
+4.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-315
-58
-584
-91
+312
+46
+581
+79
 average-hospital-going-tendency
 average-hospital-going-tendency
 0
 50
-5
+10.0
 5
 1
 NIL
 HORIZONTAL
 
 PLOT
-11
-452
-344
-597
+5
+463
+338
+608
 Infection and Recovery Rates
 hours
 rate
@@ -655,51 +655,51 @@ PENS
 "Recovery Rate" 1.0 0 -10899396 true "" "plot (gamma * nb-infected-previous)"
 
 SLIDER
-18
-59
-286
-92
+15
+80
+283
+113
 infection-chance
 infection-chance
 10
 100
-40
+40.0
 5
 1
 NIL
 HORIZONTAL
 
 SLIDER
-18
-97
-285
-130
+15
+118
+282
+151
 recovery-chance
 recovery-chance
 10
 100
-50
+50.0
 5
 1
 NIL
 HORIZONTAL
 
 MONITOR
-460
-560
-541
-605
+454
+566
+535
+611
 R0
-r0\n
+r0
 2
 1
 11
 
 SWITCH
 195
-199
+230
 298
-232
+263
 links?
 links?
 0
@@ -708,65 +708,65 @@ links?
 
 SLIDER
 15
-199
+230
 187
-232
+263
 intra-mobility
 intra-mobility
 0
 1
-0.5
+0.0
 0.1
 1
 NIL
 HORIZONTAL
 
 SWITCH
-196
-241
-299
-274
+195
+270
+298
+303
 travel?
 travel?
-1
+0
 1
 -1000
 
 SLIDER
-14
-240
-186
-273
+13
+269
+185
+302
 travel-tendency
 travel-tendency
 0
 1
-1
+1.0
 .1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-18
-136
-286
-169
+15
+157
+283
+190
 average-recovery-time
 average-recovery-time
 50
 300
-300
+300.0
 10
 1
 NIL
 HORIZONTAL
 
 PLOT
-11
-297
-343
-441
+5
+308
+337
+452
 Cumulative Infected and Recovered
 hours
 % total pop.
@@ -783,15 +783,15 @@ PENS
 "% deceased" 1.0 0 -7500403 true "" "plot ((count turtles with [ dead? ] / initial-people) * 100)"
 
 SLIDER
-15
-690
-187
-723
+315
+120
+487
+153
 vaccine-efficacy
 vaccine-efficacy
 1
 100
-82
+82.0
 1
 1
 NIL
@@ -799,24 +799,24 @@ HORIZONTAL
 
 SLIDER
 15
-640
+193
 262
-673
+226
 average-recovery-time-hospitalized
 average-recovery-time-hospitalized
 1
 1000
-501
+513.0
 1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-355
-455
-427
-500
+349
+466
+421
+511
 Infectados
 calculate-infected
 17
@@ -824,10 +824,10 @@ calculate-infected
 11
 
 MONITOR
-355
-505
-437
-550
+349
+516
+431
+561
 Recuperados
 calculate-recovered
 17
@@ -835,10 +835,10 @@ calculate-recovered
 11
 
 MONITOR
-460
-455
-547
-500
+454
+466
+541
+511
 No infectados
 calculate-susceptible
 17
@@ -846,10 +846,10 @@ calculate-susceptible
 11
 
 MONITOR
-359
-559
-431
-604
+349
+566
+421
+611
 Vacunados
 calculate-inoculated
 17
@@ -857,40 +857,40 @@ calculate-inoculated
 11
 
 SLIDER
-340
-635
-552
-668
+15
+45
+227
+78
 initial-people-infected-chance
 initial-people-infected-chance
 1
 50
-10
+10.0
 1
 1
 NIL
 HORIZONTAL
 
 SLIDER
-340
-690
-512
-723
+315
+155
+487
+188
 mortality-chance
 mortality-chance
 0
 100
-5
+1.0
 1
 1
 NIL
 HORIZONTAL
 
 MONITOR
-460
-505
-517
-550
+454
+516
+511
+561
 Muertes
 calculate-deaths
 17
@@ -1312,9 +1312,8 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
-
 @#$#@#$#@
-NetLogo 5.3.1
+NetLogo 6.2.0
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -1330,7 +1329,6 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
-
 @#$#@#$#@
 1
 @#$#@#$#@
