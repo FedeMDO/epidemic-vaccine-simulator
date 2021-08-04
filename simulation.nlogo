@@ -184,7 +184,7 @@ end
 
 to go
   if all? turtles [ not infected? ]
-    [ stop ]
+    [ if save_output [ guardar_output ] stop ]
   ask turtles
     [ clear-count ]
 
@@ -427,6 +427,17 @@ to infect  ;; turtle procedure
 
 end
 
+to guardar_output
+  file-open "output.txt"
+  file-write date-and-time
+  file-write (word "Poblacion :" initial-people)
+  file-write (word "Susceptibles: " calculate-susceptible)
+  file-write (word "Recuperados: " calculate-recovered)
+  file-write (word "Muertes: " calculate-deaths)
+  file-write (word "Vacunados: " calculate-inoculated)
+  file-write (word "R0: " r0)
+  file-close
+end
 
 to calculate-r0
 
@@ -552,8 +563,8 @@ SLIDER
 initial-people
 initial-people
 50
-400
-300
+1000
+500
 10
 1
 NIL
@@ -568,7 +579,7 @@ average-isolation-tendency
 average-isolation-tendency
 0
 50
-30
+10
 5
 1
 NIL
@@ -603,7 +614,7 @@ inoculation-chance
 inoculation-chance
 0
 50
-30
+50
 5
 1
 NIL
@@ -633,7 +644,7 @@ average-hospital-going-tendency
 average-hospital-going-tendency
 0
 50
-10
+5
 5
 1
 NIL
@@ -667,7 +678,7 @@ infection-chance
 infection-chance
 10
 100
-60
+40
 5
 1
 NIL
@@ -682,7 +693,7 @@ recovery-chance
 recovery-chance
 10
 100
-60
+50
 5
 1
 NIL
@@ -719,7 +730,7 @@ intra-mobility
 intra-mobility
 0
 1
-0.6
+0.8
 0.1
 1
 NIL
@@ -745,7 +756,7 @@ travel-tendency
 travel-tendency
 0
 1
-1
+0.1
 .1
 1
 NIL
@@ -760,7 +771,7 @@ average-recovery-time
 average-recovery-time
 50
 300
-300
+110
 10
 1
 NIL
@@ -795,7 +806,7 @@ vaccine-efficacy
 vaccine-efficacy
 1
 100
-80
+88
 1
 1
 NIL
@@ -810,7 +821,7 @@ average-recovery-time-hospitalized
 average-recovery-time-hospitalized
 1
 1000
-1000
+272
 1
 1
 NIL
@@ -869,7 +880,7 @@ initial-people-infected-chance
 initial-people-infected-chance
 1
 50
-10
+5
 1
 1
 NIL
@@ -884,7 +895,7 @@ mortality-chance
 mortality-chance
 0
 100
-24
+5
 1
 1
 NIL
@@ -900,6 +911,17 @@ calculate-deaths
 17
 1
 11
+
+SWITCH
+225
+635
+347
+668
+save_output
+save_output
+0
+1
+-1000
 
 @#$#@#$#@
 ## WHAT IS IT?
